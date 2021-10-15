@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require('../controllers/users.controllers');
-const checkAuth = require('../middleware/check-auth');
-const upload = require('../config/upload');
+const upload = require('../Config/upload');
 
 
 router.post("/uploadimage", upload.single('file'), UserController.uploadAvatar);
