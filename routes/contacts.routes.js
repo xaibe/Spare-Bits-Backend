@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const ContactsController = require('../controllers/contacts.controllers');
 const checkAuth = require('../middleware/check-auth');
-const upload = require('../config/uploadproduct');
 
 router.get("/",checkAuth, ContactsController.getAll);
  router.post("/add",checkAuth, ContactsController.createContact);

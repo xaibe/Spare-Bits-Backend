@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const OrdersController = require('../controllers/orders.controllers');
 const checkAuth = require('../middleware/check-auth');
-const upload = require('../config/uploadproduct');
 
 router.get("/",checkAuth, OrdersController.getAll);
 router.post("/add",checkAuth, OrdersController.addOrder);
