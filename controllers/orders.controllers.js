@@ -1,17 +1,9 @@
+/* eslint-disable no-unused-vars */
 const ordersController = {};
 const Users = require('../models/users.model');
 const Orders = require('../models/orders.model');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const jsonwebtoken =  require('jsonwebtoken');
 var nodemailer = require('nodemailer');
-const { Console } = require('console');
-const config=require('../Config/upload');
-var multer=require('multer');
 const Products = require('../models/products.model');
-const { nextTick } = require('process');
-const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
-const { validate } = require('../models/users.model');
 
 //to send all orders to the backend
 ordersController.getAll = async (req, res) => {
@@ -98,7 +90,7 @@ ordersController.getAll = async (req, res) => {
       const body=req.body;
       const _id=req.params._id;
        
-      Delivered=body.Delivered;
+     const Delivered=body.Delivered;
       console.log("Delivered",Delivered);
       console.log("id",_id);
       
@@ -115,8 +107,8 @@ ordersController.getAll = async (req, res) => {
       try {
         const body=req.body;
         const _id=req.params._id;
-        cancel=body.cancel;
-        Delivered=body.Delivered;
+      const  cancel=body.cancel;
+       const Delivered=body.Delivered;
         console.log("cancel",cancel);
         console.log("id",_id);
         const updates = { cancelled: cancel,
@@ -135,7 +127,7 @@ try {
   const body=req.body;
   const _id=req.params._id;
    
-  confirm=body.confirm;
+  const confirm=body.confirm;
   console.log("confirm",confirm);
   console.log("id",_id);
   
@@ -152,7 +144,7 @@ ordersController.cancelOrder = async (req, res) => {
   try {
     const body=req.body;
     const _id=req.params._id;
-    cancel=body.cancel;
+    const cancel=body.cancel;
     console.log("cancel",cancel);
     console.log("id",_id);
     const updates = { cancelled: cancel };
@@ -247,6 +239,41 @@ ordersController.filterbyproductname = async (req, res) => {
 
 //create new orders
   ordersController.addOrder = async (req, res) => {
+
+    // eslint-disable-next-line no-unused-labels
+    product :[
+      {
+      id: "product-id",
+      name: "product-name",
+      sku: "product-sku",
+      quantity: 0,
+      price: 0,
+      sale_price: 0,
+      image: "product-image",
+      description: "product-description",
+      short_description: ""
+      }
+    ]
+
+    // shipment: 
+    // {
+    //   charges: "numeric",
+    //   method_name: "string"
+    // }
+    
+    // order_charge : {
+    //   sub_total : "float",
+    //   discount : "float",
+    //   total : "float"
+    // }
+
+    // customer: {
+    //   name: "string",
+    //   email: "string",
+    //   country_code: "string",
+    //   phone_number: "string",
+    // }
+
     let products=[];
   
     let resultid;
@@ -293,12 +320,6 @@ try {
       messag: 'Error Not enough stock in inventory please decrease item number and try again'
     });
 
-
-  //    res.status(420).send({
-  //      message: 'Error Not enough stock in inventory'
-  //    }); 
-  // // //  return
- //  res.send({ message: 'Error Not enough stock in inventory'}).status(420);
    }
    else{
      try {
@@ -307,6 +328,7 @@ const updates = {
  stock:newstock,
  
 };
+       // eslint-disable-next-line no-unused-vars
        const result = await Products.updateOne(
          {
            _id: elementid
@@ -319,6 +341,7 @@ const updates = {
            runValidators: true
          }
        );
+
    }
      catch (error) {
    
@@ -328,7 +351,7 @@ const updates = {
  }
 
       try{
-  users = await Users.find({ email: selleremail });
+  const users = await Users.find({ email: selleremail });
   await  Users.update(
       {  email: selleremail},
       {
@@ -342,7 +365,8 @@ const updates = {
     console.log("Users",users);
 
     try{
-      users = await Users.find({ email: buyeremail });
+    // eslint-disable-next-line no-unused-vars
+    const  users = await Users.find({ email: buyeremail });
       await  Users.update(
           {  email: buyeremail},
           {
@@ -418,6 +442,7 @@ catch (error) {
   //delete orders
   ordersController.deleteOrder = async (req, res) => {
     if (!req.params._id) {
+      // eslint-disable-next-line no-undef
       Fu;
       res.status(500).send({
         message: 'ID missing'
@@ -578,7 +603,7 @@ catch (error) {
     } catch (ex) {
         console.log('ex', ex)
     }
-  };
+  }
 
 
 
@@ -619,6 +644,6 @@ catch (error) {
     } catch (ex) {
         console.log('ex', ex)
     }
-  };
+  }
 
       module.exports = ordersController;

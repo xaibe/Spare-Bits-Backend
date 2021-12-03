@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const usersController = {};
 const Users = require('../models/users.model');
 const path = require('path');
@@ -38,7 +39,7 @@ usersController.getAll = async (req, res) => {
 usersController.getSingleUser = async(req, res) => {
   try {
       const email = req.params.email
-      user = await Users.findOne({ "email": email });
+    const  user = await Users.findOne({ "email": email });
       if(user!=null){
         res.status(200).send({
           code: 200,
@@ -68,7 +69,7 @@ usersController.getSingleUserbyid = async(req, res) => {
   try {
       const _id = req.params._id
       console.log("id",_id);
-      user = await Users.findOne({ "_id": _id });
+     const user = await Users.findOne({ "_id": _id });
       if(user!=null){
         res.status(200).send({
           code: 200,
@@ -239,6 +240,7 @@ usersController.getNextId = async (req, res) => {
 
 usersController.deleteUser = async (req, res) => {
   if (!req.params._id) {
+    // eslint-disable-next-line no-undef
     Fu;
     res.status(500).send({
       message: 'ID missing'
@@ -498,7 +500,6 @@ async function runUpdateById(email, updates, res) {
 usersController.SendMail = async(req, res) => {
   try {
       const body = req.body;
-      let pass = "";
       console.log('req.body', body);
       const email = body.email;
 

@@ -5,19 +5,19 @@
   "main": "app.js",
   "engines": {
     "node": "16.5.0",
-    "npm":"7.19.1"
+    "npm": "7.19.1"
   },
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "bsecure": "^1.0.5",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^6.0.0",

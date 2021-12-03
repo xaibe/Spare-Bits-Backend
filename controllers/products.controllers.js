@@ -1,12 +1,4 @@
 const productsController = {};
-const Users = require('../models/users.model');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const jsonwebtoken =  require('jsonwebtoken');
-var nodemailer = require('nodemailer');
-const { Console } = require('console');
-const config=require('../Config/upload');
-var multer=require('multer');
 const Products = require('../models/products.model');
 const fs = require('fs');
 productsController.getAll = async (req, res) => {
@@ -83,7 +75,7 @@ productsController.filterbystore_id = async (req, res) => {
 };
 
 productsController.feedback = async (req, res) => {
-  image_url=[];
+  
   let feedback;
 
   const name = req.params.name;
@@ -101,7 +93,7 @@ console.log("feedbackbody dupl",feedback);
 
 try {
    
-  products = await Products.find({ name: name });
+const products = await Products.find({ name: name });
 await  Products.update(
     {  name: name},
     {
@@ -134,8 +126,8 @@ await  Products.update(
 
 
 productsController.uploadImage = async (req, res) => {
-  image_url=[];
-  Duplicate_url=[];
+  const image_url=[];
+  const Duplicate_url=[];
   var name;
   
   var host = req.headers; 
@@ -229,8 +221,6 @@ productsController.addProduct = async (req, res) => {
       
     const body = req.body;
 
-const nname = body.name;
-const nemail = body.email;
 
 
      products = new Products(body);
@@ -269,7 +259,7 @@ const nemail = body.email;
 
 productsController.deleteProduct = async (req, res) => {
   if (!req.params._id) {
-    Fu;
+  
     res.status(500).send({
       message: 'ID missing'
     });
@@ -290,11 +280,13 @@ productsController.deleteProduct = async (req, res) => {
     const result = await Products.findOneAndDelete({
       _id: _id
     });
-   
+   if(result){
     res.status(200).send({
       code: 200,
       message: 'Deleted Successfully'
     });
+   }
+    
   } catch (error) {
     console.log('error', error);
     return res.status(500).send(error);

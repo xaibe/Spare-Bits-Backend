@@ -11,6 +11,20 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require("helmet");
 var compression = require('compression');
+const bSecure = require("bsecure");
+
+const config={
+  client_id: process.env.client_id,
+  client_secret:process.env.client_secret,
+  environment:process.env.environment,
+}
+;
+let bsecure = new bSecure(config);
+console.log(config);
+    bsecure.authorize()
+    .then(response => console.log(response))
+    .catch(error => console.error(error));
+
 // Requiring Routes
 
 const UsersRoutes = require('./routes/users.routes');

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 const adminsController = {};
 const Users = require('../models/users.model');
 const Admins=require('../models/admins.model');
@@ -207,6 +209,7 @@ adminsController.deleteUser = async (req, res) => {
      console.log("filepath",filepath);
        fs.unlinkSync(filepath); 
    }
+    // eslint-disable-next-line no-unused-vars
     const result = await Admins.findOneAndDelete({
       _id: _id
     });
@@ -469,7 +472,6 @@ async function runUpdateById(email, updates, res) {
 adminsController.SendMail = async(req, res) => {
   try {
       const body = req.body;
-      let pass = "";
       console.log('req.body', body);
       const email = body.email;
 
