@@ -11,21 +11,15 @@ var multer=require('multer');
 var fs=require('fs');
 
 usersController.getAll = async (req, res) => {
-  let users;
+  console.log("USERS ");
   try {
     let merged = {};
     const start = 0;
-    const length = 100;
+    const length = 500;
   
-    users = await Users.paginate(
-      merged,
-      { password: 0 },
-      {
-        password: 0,
-        offset: parseInt(start),
-        limit: parseInt(length)
-      }
-    );
+   const users = await Users.find().limit(length);
+   console.log(users.length);
+   console.log(users);
     res.status(200).send({
       code: 200,
       message: 'Successful',
