@@ -15,6 +15,11 @@ router.put("/confirmorderdelivery/:_id", OrdersController.confirmOrderDelivery);
 router.put("/cancelorderdelivery/:_id", OrdersController.cancelOrderDelivery);
 router.get("/:_id", checkAuth, OrdersController.filtered);
 router.get(
+  "/checkOrderPaymentStatus/:id",
+  checkAuth,
+  OrdersController.CheckOrderPaymentStatus
+);
+router.get(
   "/filterbuyerorder/:email",
   checkAuth,
   OrdersController.filteredbybuyeremail

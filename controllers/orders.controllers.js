@@ -216,6 +216,30 @@ ordersController.filterbyproductname = async (req, res) => {
   }
 };
 
+ordersController.CheckOrderPaymentStatus = async (req, res) => {
+  const orderRef = req.params.id;
+  console.log("orderref", orderRef);
+  (async () => {
+    try {
+      let order = bsecure.OrderStatus;
+      order.setOrderRef(orderRef);
+      let confirm = await order.getStatus();
+      console.log("result", confirm);
+      if (confirm.status === 200) {
+        console.log("result", confirm);
+        return res
+          .send({
+            message: "Payment Confirmed successfully",
+            result: confirm,
+          })
+          .status(200);
+      }
+    } catch (err) {
+      throw new Error(err);
+    }
+  })();
+};
+
 ordersController.ConfirmPayment = async (req, res) => {
   console.log("entered Confirm");
   let user;
