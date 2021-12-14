@@ -327,8 +327,172 @@ ordersController.ConfirmPayment = async (req, res) => {
   })();
 };
 
+ordersController.UpdateOrderAfterpayment = async (req, res) => {
+  // eslint-disable-next-line no-unused-labels
+
+  let products = [];
+  let resultid;
+  let orders;
+  try {
+    const body = req.body;
+    console.log("order body", body);
+    const buyeremail = body.orderbyemail;
+    const selleremail = body.ordertoemail;
+    const productname = body.productname;
+    const productCont = body.productCount;
+    resultid = req.params._id;
+    console.log("order id", resultid);
+
+    try {
+      try {
+        const updates = {
+          Address: body.Address,
+          Phonenumber: body.Phonenumber,
+          paymentType: body.paymentType,
+        };
+        console.log("updates", updates);
+        console.log("id", resultid);
+
+        const result = await Orders.updateOne(
+          {
+            _id: resultid,
+          },
+          {
+            $set: updates,
+          },
+          {
+            upsert: true,
+            runValidators: true,
+          }
+        );
+        console.log("Order updated", result);
+      } catch (error) {
+        console.log("error", error);
+        return res.status(500).send(error);
+      }
+
+      var obj = { _id: resultid, orderbyemail: buyeremail };
+      var obj2 = { _id: resultid, ordertoemail: selleremail };
+
+      //substracting product stock
+      try {
+        let prodd;
+        let existingstock;
+        let elementid;
+        let newstock;
+        products = await Products.find({ name: productname });
+        console.log("products", products);
+
+        prodd = products.filter((e) => e.email == selleremail);
+        console.log("products", prodd);
+
+        prodd.forEach((element) => {
+          existingstock = element.stock;
+          elementid = element._id;
+        });
+        newstock = existingstock - productCont;
+        console.log("newstock", newstock);
+        if (newstock < 0) {
+          return res.status(420).send({
+            messag:
+              "Error Not enough stock in inventory please decrease item number and try again",
+          });
+        } else {
+          try {
+            const updates = {
+              stock: newstock,
+            };
+            // eslint-disable-next-line no-unused-vars
+            const result = await Products.updateOne(
+              {
+                _id: elementid,
+              },
+              {
+                $set: updates,
+              },
+              {
+                upsert: true,
+                runValidators: true,
+              }
+            );
+          } catch (error) {
+            console.log("error for updating stock", error);
+          }
+        }
+
+        try {
+          const users = await Users.find({ email: selleremail });
+          await Users.updateOne(
+            { email: selleremail },
+            {
+              $push: {
+                Orderrecieved: obj,
+              },
+            }
+          );
+
+          console.log("Users", users);
+
+          try {
+            // eslint-disable-next-line no-unused-vars
+            const users = await Users.find({ email: buyeremail });
+            Users.updateOne(
+              { email: buyeremail },
+              {
+                $push: {
+                  myorder: obj2,
+                },
+              }
+            );
+
+            //sending email
+            try {
+              SendMailtobuyer(buyeremail, resultid, productname);
+              SendMailtoseller(selleremail, resultid, productname);
+            } catch (error) {
+              console.log("error for trying to send email", error);
+            }
+          } catch (ex) {
+            console.log("error in saving my order", ex);
+          }
+        } catch (ex) {
+          console.log("error saving order recieved", ex);
+        }
+      } catch (error) {
+        console.log("error while substracting stock", error);
+      }
+    } catch (ex) {
+      console.log("ex", ex);
+    }
+    return res
+      .send({
+        message: "Order Created successfully",
+        _id: resultid,
+      })
+      .status(200);
+
+    //res.status(200).end();
+  } catch (ex) {
+    console.log("ex", ex);
+    if (ex.code === 11000) {
+      return res
+        .send({
+          message: "This product has been ordered already",
+        })
+        .status(500);
+    } else {
+      return res
+        .send({
+          message: "Error",
+          detail: ex,
+        })
+        .status(500);
+    }
+  }
+};
+
 //create new orders
-ordersController.addOrder = async (req, res) => {
+ordersController.addOrderCOD = async (req, res) => {
   // eslint-disable-next-line no-unused-labels
 
   let products = [];

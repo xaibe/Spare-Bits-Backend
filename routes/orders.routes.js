@@ -4,7 +4,12 @@ const OrdersController = require("../controllers/orders.controllers");
 const checkAuth = require("../middleware/check-auth");
 
 router.get("/", checkAuth, OrdersController.getAll);
-router.post("/add", checkAuth, OrdersController.addOrder);
+router.post("/add", checkAuth, OrdersController.addOrderCOD);
+router.post(
+  "/Updateorderafterpayment/:_id",
+  checkAuth,
+  OrdersController.UpdateOrderAfterpayment
+);
 router.post("/ConfirmPayment", checkAuth, OrdersController.ConfirmPayment);
 router.delete("/:_id", checkAuth, OrdersController.deleteOrder);
 // router.get("0/:_id",checkAuth, OrdersController.getSingleProduct);
