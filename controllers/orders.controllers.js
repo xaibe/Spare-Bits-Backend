@@ -181,7 +181,6 @@ ordersController.filterbyproductid = async (req, res) => {
 
   try {
     orders = await Orders.find({ productid: _id });
-    console.log("orders", orders);
 
     return res.status(200).send({
       code: 200,
@@ -255,7 +254,7 @@ ordersController.ConfirmPayment = async (req, res) => {
   console.log("total", total, "subtotal", sub_total);
   const productname = body.productname;
   const productCont = body.productCount;
-  let ship_Charge = 200;
+  let ship_Charge = 0;
   let ship_Method = "TCS";
 
   try {
