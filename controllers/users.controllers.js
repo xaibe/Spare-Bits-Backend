@@ -122,9 +122,27 @@ usersController.registerUser = async (req, res) => {
 
     const result = await user.save();
     console.log("result", result);
-    res.send({
-      message: "Signup successful",
-    });
+    const sname = result.name;
+    const id = result._id;
+    const semail = result.email;
+    if (result) {
+      result.password = undefined;
+      const token = jsonwebtoken.sign(
+        {
+          data: result._id,
+          role: "User",
+        },
+        process.env.JWT_KEY,
+        { expiresIn: "1d" }
+      );
+      res.send({
+        message: "Signup successful",
+        token: token,
+        name: sname,
+        email: semail,
+        userid: id,
+      });
+    }
   } catch (ex) {
     console.log("ex", ex);
     if (ex.code === 11000) {
@@ -173,11 +191,11 @@ usersController.loginUser = async (req, res) => {
         result.password = undefined;
         const token = jsonwebtoken.sign(
           {
-            data: result,
+            data: result.id,
             role: "User",
           },
           process.env.JWT_KEY,
-          { expiresIn: "7d" }
+          { expiresIn: "1d" }
         );
 
         res.send({
@@ -314,7 +332,7 @@ usersController.verifyEmail = async (req, res) => {
         console.log("match found");
         res.status(200).send({
           code: 200,
-          message: "The user is Successfully",
+          message: "The user is Successfully Verified",
         });
       } else {
         console.log("cant find any match");
