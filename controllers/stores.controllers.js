@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const storesController = {};
 const Products = require("../models/products.model");
 const Stores = require("../models/stores.model");
@@ -158,6 +159,7 @@ storesController.uploadImage = async (req, res) => {
   const image_url = [];
   const Duplicate_url = [];
   var name;
+  const id = req.params._id;
 
   try {
     const files = req.files;
@@ -197,7 +199,7 @@ storesController.uploadImage = async (req, res) => {
         mainimage: mainImage,
         image_url: image_url,
       };
-      runUpdateByName(name, updates, res);
+      runUpdate(id, updates, res);
     } catch (error) {
       console.log("error", error);
       return res.status(500).send(error);
@@ -267,7 +269,9 @@ storesController.addStore = async (req, res) => {
 
   try {
     const body = req.body;
-
+    if (req.body._id === null) {
+      delete req.body._id;
+    }
     stores = new Stores(body);
 
     const result = await stores.save();
@@ -277,6 +281,7 @@ storesController.addStore = async (req, res) => {
     return res
       .send({
         message: "store registered successfully",
+        data: result,
       })
       .status(200);
 
@@ -311,10 +316,19 @@ storesController.deleteStore = async (req, res) => {
   try {
     const _id = req.params._id;
     const storeimg = await Stores.findOne({ _id: _id });
-    for (let uri of storeimg.image_url) {
-      let filepath = `Public/uploadstore/` + uri;
+
+    if (storeimg.image_url === null || undefined) {
+      console.log("no images");
+    } else if (storeimg.image_url.length === 0) {
+      let filepath = `Public/uploadstore/` + storeimg.image_url[0];
       console.log("filepath", filepath);
       fs.unlinkSync(filepath);
+    } else {
+      for (let uri of storeimg.image_url) {
+        let filepath = `Public/uploadstore/` + uri;
+        console.log("filepath", filepath);
+        fs.unlinkSync(filepath);
+      }
     }
 
     const result = await Stores.findOneAndDelete({
