@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 const usersController = {};
+const Orders = require("../models/orders.model");
+const productsController = {};
+const Products = require("../models/products.model");
 const Users = require("../models/users.model");
 const path = require("path");
 const bcrypt = require("bcryptjs");
@@ -407,6 +410,91 @@ usersController.updateUser = async (req, res) => {
   }
 };
 
+usersController.updateName = async (req, res) => {
+  try {
+    const name = req.body.name;
+    console.log("name", name);
+    const uemail = req.params.email;
+    console.log("remail", uemail);
+
+    try {
+      let updates = {
+        sellername: name,
+      };
+      const update = {
+        sellerName: name,
+      };
+      // eslint-disable-next-line no-unused-vars
+      const result = await Products.updateMany(
+        {
+          email: uemail,
+        },
+        {
+          $set: updates,
+        },
+        {
+          runValidators: true,
+        }
+      );
+      console.log("results after updating name in products", result);
+      console.log("results ok", result.ok);
+      if (result.ok === 1) {
+        const result2 = await Orders.updateMany(
+          {
+            ordertoemail: uemail,
+          },
+          {
+            $set: update,
+          },
+          {
+            runValidators: true,
+          }
+        );
+        console.log("results after updating name in orders", result2);
+        if (result2.ok === 1) {
+          console.log(" entered first response");
+          return res.status(200).send({
+            code: 200,
+            message: "Updated Successfully",
+          });
+        } else {
+          return res.status(408).send({
+            code: 408,
+            message: "Updated failed in orders",
+          });
+        }
+      } else {
+        return res.status(422).send({
+          code: 422,
+          message: "Unprocessible Entity",
+        });
+      }
+    } catch (error) {
+      console.log("error for updating stock", error);
+    }
+    //   const sellername = body.name;
+    //     const result = await Users.findOne({ email: uemail });
+    //   const _id = //result._id;
+    //   console.log("id", _id);
+    //   if (!result) {
+    //     res.status(500).send({
+    //       message: "email missing",
+    //     });
+    //   } else {
+    //     try {
+    //       let updates = req.body;
+    //       runUpdate(_id, updates, res);
+    //     } catch (error) {
+    //       console.log("update error", error);
+    //       return res.status(500).send(error);
+    //     }
+    //   }
+  } catch (error) {
+    console.log("overall error", error);
+    return res.status(500).send(error);
+  }
+};
+
 async function runUpdate(_id, updates, res) {
   try {
     const result = await Users.updateOne(
@@ -483,6 +571,93 @@ async function runUpdateById(email, updates, res) {
     return res.status(500).send(error);
   }
 }
+
+async function runUpdateProductsManyByEmail(email, updates, res) {
+  try {
+    const result = await Products.updateMany(
+      {
+        email: email,
+      },
+      {
+        $set: updates,
+      },
+      {
+        runValidators: true,
+      }
+    );
+
+    if (result.nModified == 1) {
+      true;
+    } else {
+      true;
+    }
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).send(error);
+  }
+}
+
+usersController.sendNewUserMail = async (req, res) => {
+  try {
+    const body = req.body;
+    console.log("req.body", body);
+    const email = body.email;
+
+    var verifyCode = body.verifycode;
+    console.log(verifyCode);
+
+    //var RandomNumber=Math.floor(Math.random()*10000);
+    //SSSconsole.log(RandomNumber);
+
+    const result = await Users.findOne({ email: email });
+    console.log("user found before email for sending verify code", result);
+    if (result) {
+      // this means result is not null
+      res.status(400).send({
+        Error: "This user already exists.",
+        message: "This user already exists. ",
+      });
+    } else {
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "sparebits1@gmail.com",
+          pass: "Jiyan@786",
+        },
+      });
+      var mailOptions = {
+        from: "SpareBits3217@gmail.com",
+        to: email,
+        subject: "Email Verification Spare Bits",
+        html: `<h1>Hello! You Have to verify your Email Adress to complete Signup on Spare Bits.</h1><p>Thanks a lot for using Spare Bits!   </p> 
+              
+              <p>Use this verification code to Verify your Email Address: ${verifyCode}</p>
+
+              <h2>regards:</h2> <p>Spare Bits</p>`,
+      };
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+          res.status(400).send({
+            Error: 400,
+            message: "Can't send email please try again",
+          });
+
+          //res.send({ message: 'we got a problem' });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).send({
+            code: 200,
+            message: "Email Delivered Sucessfully",
+          });
+        }
+      });
+    }
+  } catch (ex) {
+    console.log("ex", ex);
+  }
+};
+
 usersController.SendMail = async (req, res) => {
   try {
     const body = req.body;
@@ -525,6 +700,10 @@ usersController.SendMail = async (req, res) => {
       };
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
+          res.status(400).send({
+            Error: 400,
+            message: "Can't send email please try again",
+          });
           console.log(error);
           //res.send({ message: 'we got a problem' });
         } else {
