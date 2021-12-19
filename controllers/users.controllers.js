@@ -653,8 +653,8 @@ usersController.sendNewUserMail = async (req, res) => {
       var transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "sparebits1@gmail.com",
-          pass: "Jiyan@786",
+          user: process.env.user,
+          pass: process.env.pass,
         },
       });
       var mailOptions = {
