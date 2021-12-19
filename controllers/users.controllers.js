@@ -2,6 +2,7 @@
 const usersController = {};
 const Orders = require("../models/orders.model");
 const productsController = {};
+const Stores = require("../models/stores.model");
 const Products = require("../models/products.model");
 const Users = require("../models/users.model");
 const path = require("path");
@@ -260,13 +261,44 @@ usersController.deleteUser = async (req, res) => {
       console.log("filepath", filepath);
       fs.unlinkSync(filepath);
     }
+
     const result = await Users.findOneAndDelete({
       _id: _id,
     });
-    res.status(200).send({
-      code: 200,
-      message: "Deleted Successfully",
-    });
+
+    if (result) {
+      const result2 = await Products.findOneAndDelete({
+        email: result1.email,
+      });
+
+      if (result2) {
+        const result3 = await Stores.findOneAndDelete({
+          email: result1.email,
+        });
+
+        if (result3) {
+          return res.status(200).send({
+            code: 200,
+            message: "Deleted Successfully",
+          });
+        } else {
+          return res.status(500).send({
+            code: 500,
+            message: "Deleting Stores Error ",
+          });
+        }
+      } else {
+        return res.status(500).send({
+          code: 500,
+          message: "Deleting Products Error ",
+        });
+      }
+    } else {
+      return res.status(500).send({
+        code: 500,
+        message: "Deleting User Error ",
+      });
+    }
   } catch (error) {
     console.log("error", error);
     return res.status(500).send(error);
