@@ -257,9 +257,13 @@ usersController.deleteUser = async (req, res) => {
     const result1 = await Users.findOne({ _id: _id });
 
     if (result1.imageUrl != null || result1.imageUrl != undefined) {
-      let filepath = `Public/uploads/` + result1.imageUrl;
-      console.log("filepath", filepath);
-      fs.unlinkSync(filepath);
+      try {
+        let filepath = `Public/uploads/` + result1.imageUrl;
+        console.log("filepath", filepath);
+        fs.unlinkSync(filepath);
+      } catch (error) {
+        console.log("error", error);
+      }
     }
 
     const result = await Users.findOneAndDelete({
@@ -716,8 +720,8 @@ usersController.SendMail = async (req, res) => {
       var transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "sparebits1@gmail.com",
-          pass: "Jiyan@786",
+          user: process.env.user,
+          pass: process.env.pass,
         },
       });
       var mailOptions = {
