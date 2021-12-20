@@ -64,10 +64,11 @@ productsController.filterbystore_id = async (req, res) => {
 };
 
 productsController.feedback = async (req, res) => {
+  console.log("entered feedback");
   let feedback;
 
-  const name = req.params.name;
-  console.log("product name", name);
+  const _id = req.params._id;
+  console.log("product id", _id);
 
   const body = req.body;
   console.log("feedbackbody", body);
@@ -79,27 +80,67 @@ productsController.feedback = async (req, res) => {
   console.log("feedbackbody dupl", feedback);
 
   try {
-    const products = await Products.find({ name: name });
-    await Products.update(
-      { name: name },
-      {
-        $push: {
-          feedback: feedback,
-          //{
-          //              userId:ObjectId("570ca5e48dbe673802c2d035"),
-          //              point: 10
-          //             }
-        },
-      }
-    );
-
-    console.log("products", products);
-
-    return res.status(200).send({
-      code: 200,
-      message: "Successful",
-      //    data: products
+    //to find existing feedback
+    const product = await Products.find({
+      _id: _id,
+      feedback: { $elemMatch: { email: feedback.email } },
     });
+    console.log("products", JSON.stringify(product, null, 2));
+    if (product.length === 0) {
+      //add new feedback
+      const products = await Products.find({ _id: _id });
+      console.log("products", products);
+      await Products.updateOne(
+        { _id: _id },
+        {
+          $push: {
+            feedback: feedback,
+            //{
+            //              userId:ObjectId("570ca5e48dbe673802c2d035"),
+            //              point: 10
+            //             }
+          },
+        }
+      );
+      return res.status(200).send({
+        code: 200,
+        message: "Successful",
+        //    data: products
+      });
+    } else {
+      const update = await Products.updateOne(
+        { _id: _id, "feedback.email": feedback.email },
+        {
+          $set: {
+            "feedback.$.feed": feedback.feed,
+            "feedback.$.name": feedback.name,
+          },
+        }
+      );
+      console.log("update existing obj", update);
+      return res.status(200).send({
+        code: 200,
+        message: "Successful",
+        //    data: products
+      });
+    }
+    // Products.updateOne({ _id: _id },{$set:{})
+    // const products = await Products.find({ _id: _id });
+    // console.log("products", products);
+    // await Products.updateOne(
+    //   { _id: _id },
+    //   {
+    //     $push: {
+    //       feedback: feedback,
+    //       //{
+    //       //              userId:ObjectId("570ca5e48dbe673802c2d035"),
+    //       //              point: 10
+    //       //             }
+    //     },
+    //   }
+    // );
+
+    // console.log("products", products);
   } catch (error) {
     console.log("error", error);
     return res.status(500).send(error);
@@ -232,14 +273,22 @@ productsController.deleteProduct = async (req, res) => {
     if (result1.image_url === null || undefined) {
       console.log("no images");
     } else if (result1.image_url.length === 0) {
-      let filepath = `Public/uploadproduct/` + result1.image_url[0];
-      console.log("filepath", filepath);
-      fs.unlinkSync(filepath);
-    } else {
-      for (let uri of result1.image_url) {
-        let filepath = `Public/uploadproduct/` + uri;
+      try {
+        let filepath = `Public/uploadproduct/` + result1.image_url[0];
         console.log("filepath", filepath);
         fs.unlinkSync(filepath);
+      } catch (error) {
+        console.log("error", error);
+      }
+    } else {
+      try {
+        for (let uri of result1.image_url) {
+          let filepath = `Public/uploadproduct/` + uri;
+          console.log("filepath", filepath);
+          fs.unlinkSync(filepath);
+        }
+      } catch (error) {
+        console.log("error", error);
       }
     }
 

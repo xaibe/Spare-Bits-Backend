@@ -22,5 +22,5 @@ router.post(
   ProductsController.uploadImage
 );
 
-router.post("/:name", checkAuth, ProductsController.feedback);
+router.post("/feedback/:_id", checkAuth, ProductsController.feedback);
 module.exports = router;

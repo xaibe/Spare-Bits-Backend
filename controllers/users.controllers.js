@@ -1,7 +1,9 @@
+/* eslint-disable no-const-assign */
 /* eslint-disable no-unused-vars */
 const usersController = {};
 const Orders = require("../models/orders.model");
 const productsController = {};
+const Contacts = require("../models/contacts.model");
 const Stores = require("../models/stores.model");
 const Products = require("../models/products.model");
 const Users = require("../models/users.model");
@@ -256,7 +258,9 @@ usersController.deleteUser = async (req, res) => {
 
     const result1 = await Users.findOne({ _id: _id });
 
-    if (result1.imageUrl != null || result1.imageUrl != undefined) {
+    if (result1.imageUrl === null || result1.imageUrl === undefined) {
+      console.log("no image");
+    } else {
       try {
         let filepath = `Public/uploads/` + result1.imageUrl;
         console.log("filepath", filepath);
@@ -270,39 +274,27 @@ usersController.deleteUser = async (req, res) => {
       _id: _id,
     });
 
-    if (result) {
-      const result2 = await Products.findOneAndDelete({
-        email: result1.email,
-      });
+    console.log("result", result);
+    const result2 = await Products.findOneAndDelete({
+      email: result1.email,
+    });
 
-      if (result2) {
-        const result3 = await Stores.findOneAndDelete({
-          email: result1.email,
-        });
+    const result3 = await Stores.findOneAndDelete({
+      email: result1.email,
+    });
 
-        if (result3) {
-          return res.status(200).send({
-            code: 200,
-            message: "Deleted Successfully",
-          });
-        } else {
-          return res.status(500).send({
-            code: 500,
-            message: "Deleting Stores Error ",
-          });
-        }
-      } else {
-        return res.status(500).send({
-          code: 500,
-          message: "Deleting Products Error ",
-        });
-      }
-    } else {
-      return res.status(500).send({
-        code: 500,
-        message: "Deleting User Error ",
-      });
-    }
+    const result4 = await Contacts.deleteMany({
+      user_id: _id,
+    });
+
+    const result5 = await Contacts.deleteMany({
+      contacted_userid: _id,
+    });
+
+    return res.status(200).send({
+      code: 200,
+      message: "Deleted Successfully",
+    });
   } catch (error) {
     console.log("error", error);
     return res.status(500).send(error);

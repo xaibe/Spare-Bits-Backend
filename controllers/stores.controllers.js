@@ -320,14 +320,22 @@ storesController.deleteStore = async (req, res) => {
     if (storeimg.image_url === null || undefined) {
       console.log("no images");
     } else if (storeimg.image_url.length === 0) {
-      let filepath = `Public/uploadstore/` + storeimg.image_url[0];
-      console.log("filepath", filepath);
-      fs.unlinkSync(filepath);
-    } else {
-      for (let uri of storeimg.image_url) {
-        let filepath = `Public/uploadstore/` + uri;
+      try {
+        let filepath = `Public/uploadstore/` + storeimg.image_url[0];
         console.log("filepath", filepath);
         fs.unlinkSync(filepath);
+      } catch (error) {
+        console.log("error", error);
+      }
+    } else {
+      try {
+        for (let uri of storeimg.image_url) {
+          let filepath = `Public/uploadstore/` + uri;
+          console.log("filepath", filepath);
+          fs.unlinkSync(filepath);
+        }
+      } catch (error) {
+        console.log("error", error);
       }
     }
 
