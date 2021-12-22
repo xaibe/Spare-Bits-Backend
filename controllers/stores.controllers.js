@@ -44,10 +44,11 @@ storesController.filtered = async (req, res) => {
 };
 
 storesController.feedback = async (req, res) => {
+  console.log("entered feedback");
   let feedback;
 
-  const name = req.params.name;
-  console.log("product name", name);
+  const _id = req.params._id;
+  console.log("store id", _id);
 
   const body = req.body;
   console.log("feedbackbody", body);
@@ -59,27 +60,50 @@ storesController.feedback = async (req, res) => {
   console.log("feedbackbody dupl", feedback);
 
   try {
-    const stores = await Stores.find({ name: name });
-    await Stores.updateOne(
-      { name: name },
-      {
-        $push: {
-          feedback: feedback,
-          //{
-          //              userId:ObjectId("570ca5e48dbe673802c2d035"),
-          //              point: 10
-          //             }
-        },
-      }
-    );
-
-    console.log("stores", stores);
-
-    return res.status(200).send({
-      code: 200,
-      message: "Successful",
-      //    data: stores
+    //to find existing feedback
+    const store = await Stores.find({
+      _id: _id,
+      feedback: { $elemMatch: { email: feedback.email } },
     });
+    console.log("stores", JSON.stringify(store, null, 2));
+    if (store.length === 0) {
+      //add new feedback
+      const stores = await Stores.find({ _id: _id });
+      console.log("stores", stores);
+      await Stores.updateOne(
+        { _id: _id },
+        {
+          $push: {
+            feedback: feedback,
+            //{
+            //              userId:ObjectId("570ca5e48dbe673802c2d035"),
+            //              point: 10
+            //             }
+          },
+        }
+      );
+      return res.status(200).send({
+        code: 200,
+        message: "Successful",
+        //    data: products
+      });
+    } else {
+      const update = await Stores.updateOne(
+        { _id: _id, "feedback.email": feedback.email },
+        {
+          $set: {
+            "feedback.$.feed": feedback.feed,
+            "feedback.$.name": feedback.name,
+          },
+        }
+      );
+      console.log("update existing obj", update);
+      return res.status(200).send({
+        code: 200,
+        message: "Successful",
+        //    data: products
+      });
+    }
   } catch (error) {
     console.log("error", error);
     return res.status(500).send(error);

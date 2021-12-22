@@ -16,6 +16,5 @@ router.post(
   upload.array("files", 4),
   storesController.uploadImage
 );
-
-router.post("/:name", checkAuth, storesController.feedback);
+router.post("/feedback/:_id", checkAuth, storesController.feedback);
 module.exports = router;
